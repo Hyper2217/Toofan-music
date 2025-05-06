@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html at root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -28,7 +27,6 @@ app.get('/download-mp4', async (req, res) => {
   ytdl(videoURL, { quality: 'highestvideo' }).pipe(res);
 });
 
-// Catch-all for undefined routes
 app.use((req, res) => {
   res.status(404).send('404 - Page Not Found');
 });
