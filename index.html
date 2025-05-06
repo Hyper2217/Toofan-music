@@ -105,53 +105,58 @@
     }
   </style>
 </head>
-<body>  <header>TOOFAN Music & Video Downloader</header>  <div id="searchBar">
+<body>
+  <header>TOOFAN Music & Video Downloader</header>
+  <div id="searchBar">
     <input type="text" id="searchInput" placeholder="Search for MP3 or MP4 songs or videos..." />
     <button id="searchBtn">Search</button>
-  </div>  <div class="results" id="results"></div>  <div class="player" id="player"></div>  <script>
+  </div>
+  <div class="results" id="results"></div>
+  <div class="player" id="player"></div>
+  <script>
     const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
     const resultsDiv = document.getElementById('results');
-    const playerDiv = document.getElementById('player');
+    const playerDiv = document.getElementById('player');searchBtn.onclick = async () => {
+  const query = searchInput.value.trim();
+  if (!query) return alert("Please enter a search term.");
 
-    searchBtn.onclick = async () => {
-      const query = searchInput.value.trim();
-      if (!query) return alert("Please enter a search term.");
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}&maxResults=9`);
+  const data = await res.json();
+  resultsDiv.innerHTML = "";
 
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}&maxResults=9`);
-      const data = await res.json();
-      resultsDiv.innerHTML = "";
+  data.items.forEach(item => {
+    const videoId = item.id.videoId;
+    const title = item.snippet.title;
+    const thumb = item.snippet.thumbnails.medium.url;
 
-      data.items.forEach(item => {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-        const thumb = item.snippet.thumbnails.medium.url;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${thumb}" alt="thumbnail">
+      <h4>${title}</h4>
+      <button onclick="playAudio('${videoId}')">Play</button>
+      <a href="https://toofan-downloader.onrender.com/download-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP3</a>
+      <a href="https://toofan-downloader.onrender.com/download-mp4?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP4</a>
+    `;
+    resultsDiv.appendChild(card);
+  });
+};
 
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <img src="${thumb}" alt="thumbnail">
-          <h4>${title}</h4>
-          <button onclick="playAudio('${videoId}')">Play</button>
-          <a href="http://localhost:3000/download-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP3</a>
-          <a href="http://localhost:3000/download-mp4?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP4</a>
-        `;
-        resultsDiv.appendChild(card);
-      });
-    };
+function playAudio(videoId) {
+  playerDiv.innerHTML = `
+    <h3>Now Playing</h3>
+    <iframe 
+      src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+      frameborder="0" 
+      allow="autoplay; encrypted-media" 
+      allowfullscreen>
+    </iframe>
+  `;
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
 
-    function playAudio(videoId) {
-      playerDiv.innerHTML = `
-        <h3>Now Playing</h3>
-        <iframe 
-          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
-          frameborder="0" 
-          allow="autoplay; encrypted-media" 
-          allowfullscreen>
-        </iframe>
-      `;
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
-  </script></body>
+  </script>
+</body>
 </html>
