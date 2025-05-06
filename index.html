@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TOOFAN Music & Video</title>
+  <style>
+    /* Same styles you provided */
+    body { background: #0e0e1a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+    header { background: #111; text-align: center; padding: 20px; font-size: 1.8em; color: cyan; border-bottom: 2px solid cyan; text-shadow: 0 0 10px cyan; }
+    #searchBar { display: flex; justify-content: center; align-items: center; padding: 20px; background: #181828; flex-wrap: wrap; }
+    #searchInput { width: 70%; max-width: 500px; padding: 12px; font-size: 1em; border-radius: 8px; border: none; outline: none; }
+    #searchBtn { padding: 12px 20px; margin-left: 10px; background: cyan; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+    #searchBtn:hover { background: #0ff; }
+    .results { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+    .card { background: #1a1a2f; padding: 15px; border-radius: 12px; box-shadow: 0 0 12px #0ff3; text-align: center; transition: transform 0.3s ease; }
+    .card:hover { transform: scale(1.02); }
+    .card img { width: 100%; border-radius: 10px; }
+    .card h4 { margin: 10px 0 5px; font-size: 1em; }
+    .card button, .card a { background: #0ff; border: none; padding: 10px 12px; margin: 6px; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; color: #000; display: inline-block; transition: background 0.3s ease; }
+    .card button:hover, .card a:hover { background: cyan; }
+    .player { background: #111; padding: 30px; border-top: 2px solid cyan; text-align: center; }
+    .player iframe { width: 90%; height: 320px; max-width: 800px; border-radius: 15px; box-shadow: 0 0 15px cyan; }
+  </style>
+</head>
+<body>
+  <header>TOOFAN Music & Video Downloader</header>
+  <div id="searchBar">
+    <input type="text" id="searchInput" placeholder="Search for MP3 or MP4 songs or videos..." />
+    <button id="searchBtn">Search</button>
+  </div>
+  <div class="results" id="results"></div>
+  <div class="player" id="player"></div>
+  <script>
+    const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    const playerDiv = document.getElementById('player');
+
+    searchBtn.onclick = async () => {
+      const query = searchInput.value.trim();
+      if (!query) return alert("Please enter a search term.");
+
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}&maxResults=9`);
+      const data = await res.json();
+      resultsDiv.innerHTML = "";
+
+      data.items.forEach(item => {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumb = item.snippet.thumbnails.medium.url;
+
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${thumb}" alt="thumbnail">
+          <h4>${title}</h4>
+          <button onclick="playAudio('${videoId}')">Play</button>
+          <a href="/download-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP3</a>
+          <a href="/download-mp4?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP4</a>
+        `;
+        resultsDiv.appendChild(card);
+      });
+    };
+
+    function playAudio(videoId) {
+      playerDiv.innerHTML = `
+        <h3>Now Playing</h3>
+        <iframe 
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+          frameborder="0" 
+          allow="autoplay; encrypted-media" 
+          allowfullscreen>
+        </iframe>
+      `;
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  </script>
+</body>
+    </html>
