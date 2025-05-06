@@ -1,0 +1,17 @@
+{
+  "name": "toofan-music-video-downloader",
+  "version": "1.0.0",
+  "description": "TOOFAN Music & Video Downloader Website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.4",
+    "ytdl-core": "^4.11.1",
+    "node-fetch": "^2.6.7"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
