@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -105,10 +106,15 @@
     }
   </style>
 </head>
-<body>  <header>TOOFAN Music & Video Downloader</header>  <div id="searchBar">
+<body>
+  <header>TOOFAN Music & Video Downloader</header>
+  <div id="searchBar">
     <input type="text" id="searchInput" placeholder="Search for MP3 or MP4 songs or videos..." />
     <button id="searchBtn">Search</button>
-  </div>  <div class="results" id="results"></div>  <div class="player" id="player"></div>  <script>
+  </div>
+  <div class="results" id="results"></div>
+  <div class="player" id="player"></div>
+  <script>
     const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -123,6 +129,7 @@
       const data = await res.json();
       resultsDiv.innerHTML = "";
 
+      const origin = window.location.origin;
       data.items.forEach(item => {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
@@ -134,8 +141,8 @@
           <img src="${thumb}" alt="thumbnail">
           <h4>${title}</h4>
           <button onclick="playAudio('${videoId}')">Play</button>
-          <a href="http://localhost:3000/download-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP3</a>
-          <a href="http://localhost:3000/download-mp4?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP4</a>
+          <a href="${origin}/download-mp3?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP3</a>
+          <a href="${origin}/download-mp4?url=https://www.youtube.com/watch?v=${videoId}" target="_blank">Download MP4</a>
         `;
         resultsDiv.appendChild(card);
       });
@@ -153,5 +160,6 @@
       `;
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
-  </script></body>
+  </script>
+</body>
 </html>
