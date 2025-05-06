@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TOOFAN Music & Video</title>
+  <style>
+    body {
+      background: #0e0e1a;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: linear-gradient(90deg, #111, #1a1a2f);
+      border-bottom: 2px solid cyan;
+      text-shadow: 0 0 20px #0ff;
+      letter-spacing: 1px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .neon-text {
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .music-icon {
+      width: 40px;
+      height: 40px;
+      animation: neonPulse 2s infinite ease-in-out;
+      filter: drop-shadow(0 0 10px cyan);
+    }
+
+    .language-switcher {
+      font-size: 0.9em;
+      background: #222;
+      color: #0ff;
+      border: 1px solid #0ff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #searchBar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+    }
+
+    #searchInput {
+      width: 60%;
+      padding: 12px 40px 12px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 30px;
+      background: #1a1a2f;
+      color: white;
+      outline: none;
+    }
+
+    #cancelIcon {
+      position: absolute;
+      right: 160px;
+      font-size: 20px;
+      color: #0ff;
+      cursor: pointer;
+    }
+
+    #searchBtn {
+      margin-left: 10px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      background: cyan;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .autocomplete-suggestions {
+      position: absolute;
+      background: #222;
+      border: 1px solid cyan;
+      z-index: 9999;
+      color: white;
+      max-height: 200px;
+      overflow-y: auto;
+      width: 60%;
+      top: 60px;
+      left: 20%;
+      border-radius: 6px;
+    }
+
+    .autocomplete-suggestion {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .autocomplete-suggestion:hover {
+      background: cyan;
+      color: black;
+    }
+
+    .card {
+      background: #1a1a2f;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px;
+      display: inline-block;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 0 10px #0ff5;
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .card button,
+    .card a {
+      margin-top: 8px;
+      display: block;
+      padding: 8px;
+      background: #0ff;
+      border: none;
+      border-radius: 8px;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #player {
+      margin: 20px;
+      text-align: center;
+      position: sticky;
+      top: 20px;
+    }
+
+    iframe {
+      width: 90%;
+      height: 315px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid cyan;
+      margin-top: 40px;
+      background: #101020;
+    }
+
+    @keyframes neonPulse {
+      0%, 100% { filter: drop-shadow(0 0 5px cyan); }
+      50% { filter: drop-shadow(0 0 15px cyan); }
+    }
+
+    .loading-spinner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border: 4px solid transparent;
+      border-top: 4px solid cyan;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Back to Top Button */
+    #backToTop {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0ff;
+      color: black;
+      border: none;
+      border-radius: 50%;
+      padding: 15px;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+      box-shadow: 0 0 10px #0ff;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    #backToTop:hover {
+      background-color: #ff00ff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <svg class="music-icon" xmlns="http://www.w3.org/2000/svg" fill="cyan" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1014 17V7h4V3h-6z"/></svg>
+      <span class="neon-text" id="siteTitle">TOOFAN Music & Video</span>
+    </div>
+    <select class="language-switcher" id="languageSelect">
+      <option value="">Language</option>
+      <option value="en">English</option>
+      <option value="fr">French</option>
+      <option value="sw">Swahili</option>
+      <option value="hi">Hindi</option>
+    </select>
+  </header>
+
+  <div id="searchBar">
+    <input type="text" id="searchInput" placeholder="Search for songs or videos..." autocomplete="off" />
+    <span id="cancelIcon" onclick="clearSearch()">✖</span>
+    <button id="searchBtn" onclick="searchVideos()">Search</button>
+    <div id="suggestions" class="autocomplete-suggestions"></div>
+    <div id="loadingSpinner" class="loading-spinner" style="display:none;"></div>
+  </div>
+
+  <div id="player"></div>
+  <div class="results" id="results"></div>
+  <footer>CRAFTED BY TOOFAN</footer>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+  <script>
+    // Scroll to Top functionality
+    window.onscroll = function() {
+      const backToTopButton = document.getElementById("backToTop");
+      if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        backToTopButton.style.display = "block";
+      } else {
+        backToTopButton.style.display = "none";
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    const playerDiv = document.getElementById('player');
+    const suggestionBox = document.getElementById('suggestions');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const languageSelect = document.getElementById('languageSelect');
+    const siteTitle = document.getElementById('siteTitle');
+
+    const translations = {
+      en: {
+        placeholder: "Search for songs or videos...",
+        searchBtn: "Search",
+        siteTitle: "TOOFAN Music & Video",
+        cancelIcon: "✖"
+      },
+      fr: {
+        placeholder: "Recherchez des chansons ou des vidéos...",
+        searchBtn: "Chercher",
+        siteTitle: "TOOFAN Musique & Vidéo",
+        cancelIcon: "✖"
+      },
+      sw: {
+        placeholder: "Tafuta nyimbo au video...",
+        searchBtn: "Tafuta",
+        siteTitle: "TOOFAN Muziki & Video",
+        cancelIcon: "✖"
+      },
+      hi: {
+        placeholder: "गाने या वीडियो खोजें...",
+        searchBtn: "खोजें",
+        siteTitle: "TOOFAN संगीत और वीडियो",
+        cancelIcon: "✖"
+      }
+    };
+
+    function setLanguage(language) {
+      const lang = translations[language];
+      if (lang) {
+        searchInput.placeholder = lang.placeholder;
+        searchBtn.textContent = lang.searchBtn;
+        siteTitle.textContent = lang.siteTitle;
+        document.getElementById('cancelIcon').textContent = lang.cancelIcon;
+      }
+    }
+
+    languageSelect.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+    });
+
+    function clearSearch() {
+      searchInput.value = "";
+      suggestionBox.innerHTML = "";
+      resultsDiv.innerHTML = "";
+    }
+
+    async function searchVideos() {
+      const query = searchInput.value.trim();
+      if (!query) return alert("Enter something to search.");
+
+      playerDiv.innerHTML = "";
+      resultsDiv.innerHTML = "";
+      loadingSpinner.style.display = 'block';
+
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}&maxResults=40`);
+        const data = await res.json();
+        loadingSpinner.style.display = 'none';
+
+        const firstVideo = data.items[0];
+        if (firstVideo) {
+          const firstId = firstVideo.id.videoId;
+          playerDiv.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${firstId}?rel=0" allow="encrypted-media" allowfullscreen></iframe>
+          `;
+        }
+
+        data.items.forEach(item => {
+          const videoId = item.id.videoId;
+          const title = item.snippet.title;
+          const thumb = item.snippet.thumbnails.medium.url;
+
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${thumb}" alt="thumbnail">
+            <h4>${title}</h4>
+            <a href="/download-mp3?url=https://www.youtube.com/watch?v=${videoId}">Download MP3</a>
+            <a href="/download-mp4?url=https://www.youtube.com/watch?v=${videoId}">Download MP4</a>
+            <button onclick="playVideo('${videoId}')">Play</button>
+          `;
+          resultsDiv.appendChild(card);
+        });
+      } catch (err) {
+        loadingSpinner.style.display = 'none';
+        alert("Failed to fetch videos.");
+      }
+    }
+  </script>
+</body>
+</html>
