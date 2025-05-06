@@ -1,52 +1,14 @@
-const express = require('express');
-const ytdl = require('ytdl-core');
-const cors = require('cors');
-
-const app = express();
-const PORT = 3000;
-
-app.use(cors());
-
-app.get('/download-mp3', async (req, res) => {
-  const videoURL = req.query.url;
-  if (!ytdl.validateURL(videoURL)) {
-    return res.status(400).send('Invalid YouTube URL');
+{
+  "name": "toofan-downloader",
+  "version": "1.0.0",
+  "description": "Music & Video downloader using YouTube API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "ytdl-core": "^4.11.2"
   }
-
-  try {
-    const info = await ytdl.getInfo(videoURL);
-    const title = info.videoDetails.title.replace(/[^\w\s]/gi, '');
-    res.header('Content-Disposition', `attachment; filename="${title}.mp3"`);
-
-    ytdl(videoURL, {
-      filter: 'audioonly',
-      quality: 'highestaudio',
-    }).pipe(res);
-  } catch (error) {
-    res.status(500).send('Error processing MP3 download');
-  }
-});
-
-app.get('/download-mp4', async (req, res) => {
-  const videoURL = req.query.url;
-  if (!ytdl.validateURL(videoURL)) {
-    return res.status(400).send('Invalid YouTube URL');
-  }
-
-  try {
-    const info = await ytdl.getInfo(videoURL);
-    const title = info.videoDetails.title.replace(/[^\w\s]/gi, '');
-    res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
-
-    ytdl(videoURL, {
-      filter: 'audioandvideo',
-      quality: 'highest',
-    }).pipe(res);
-  } catch (error) {
-    res.status(500).send('Error processing MP4 download');
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`TOOFAN downloader backend is running at http://localhost:${PORT}`);
-});
+}
