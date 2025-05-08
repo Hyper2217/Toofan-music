@@ -81,6 +81,8 @@
       border-radius: 10px;
       box-shadow: 0 4px 12px #000;
       z-index: 2;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .suggestion {
@@ -122,6 +124,7 @@
     .result video {
       width: 100%;
       margin: 10px 0;
+      border-radius: 10px;
     }
 
     .result button {
@@ -141,6 +144,23 @@
       background: #121212;
       border-top: 1px solid #1db95444;
       margin-top: 2rem;
+      box-shadow: 0 -2px 15px #1db95433;
+    }
+
+    footer a {
+      color: #1db954;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    footer a img {
+      vertical-align: middle;
+      filter: drop-shadow(0 0 2px #1db954);
+      transition: transform 0.2s;
+    }
+
+    footer a img:hover {
+      transform: scale(1.1);
     }
   </style>
 </head>
@@ -149,7 +169,7 @@
 
   <div class="search-container">
     <div class="search-box">
-      <input type="text" id="query" class="search-input" placeholder="Search for music or videos..." autocomplete="off" />
+      <input type="text" id="query" class="search-input" placeholder="Search for music or videos..." autocomplete="on" />
       <button id="searchBtn" class="search-btn">Search</button>
       <button id="clearBtn" class="clear-btn">&times;</button>
       <div class="suggestions" id="suggestions"></div>
@@ -159,7 +179,19 @@
   <div id="results"></div>
 
   <footer>
-    &copy; 2025 Toofan.com | Stream & Download your favorite music
+    <div style="padding: 1rem; color: #ccc;">
+      <p>&copy; 2025 <span style="color:#1db954;">Toofan.com</span> | Stream & Download your favorite music</p>
+      <div style="margin-top: 0.5rem;">
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+      </div>
+      <div style="margin-top: 0.5rem;">
+        <a href="#"><img src="https://img.icons8.com/fluency/24/facebook-new.png"/></a>
+        <a href="#"><img src="https://img.icons8.com/fluency/24/instagram-new.png"/></a>
+        <a href="#"><img src="https://img.icons8.com/fluency/24/twitter-squared.png"/></a>
+      </div>
+    </div>
   </footer>
 
   <script>
@@ -224,13 +256,13 @@
           <img src="${video.thumbnail}" alt="${video.title}">
           <h4>${video.title}</h4>
           <video controls poster="${video.thumbnail}">
-            <source src="https://www.youtube.com/watch?v=${video.id}" type="video/mp4" />
+            <source src="${video.url}" type="video/mp4" />
           </video>
           <div>
-            <a href="/api/download?id=${video.id}&format=mp3">
+            <a href="/api/download?id=${video.id}&format=mp3" download>
               <button>Download MP3</button>
             </a>
-            <a href="/api/download?id=${video.id}&format=mp4">
+            <a href="/api/download?id=${video.id}&format=mp4" download>
               <button>Download MP4</button>
             </a>
           </div>
