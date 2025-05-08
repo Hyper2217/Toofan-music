@@ -1,46 +1,80 @@
 const express = require('express');
-const fetch = require('node-fetch');
 const cors = require('cors');
-
+const ytdlp = require('yt-dlp-exec');
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-// Allow Cross-Origin Requests
 app.use(cors());
+app.use(express.static('public'));
 
-// YouTube API Key
-const API_KEY = 'AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU';
-
-// YouTube search function
-async function searchYouTube(query) {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${API_KEY}&type=video&maxResults=10`;
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
-    return json.items.map(item => ({
-      id: item.id.videoId,
-      title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.medium.url
-    }));
-  } catch (error) {
-    console.error('Error fetching data from YouTube:', error);
-    return [];
-  }
-}
-
-// Search API endpoint
-app.get('/api/search', async (req, res) => {
+// Suggest endpoint using ytsearch (autocomplete simulation)
+app.get('/api/suggest', async (req, res) => {
   const query = req.query.q;
-  if (!query) {
-    return res.status(400).json({ error: 'Query parameter "q" is required.' });
-  }
+  if (!query) return res.json([]);
 
-  const results = await searchYouTube(query);
-  res.json(results);
+  try {
+    const result = await ytdlp(`ytsearch10:${query}`, {
+      dumpSingleJson: true,
+      flatPlaylist: true
+    });
+
+    const suggestions = result.entries.map(item => item.title);
+    res.json(suggestions);
+  } catch (err) {
+    res.status(500).json({ error: 'Suggestion error' });
+  }
 });
 
-// Serve the static frontend if needed (Optional)
-app.use(express.static('public')); // Make sure to place frontend files (HTML, CSS, JS) in the 'public' folder
+// Search endpoint
+app.get('/api/search', async (req, res) => {
+  const query = req.query.q;
+  if (!query) return res.status(400).json({ error: 'Missing query' });
+
+  try {
+    const result = await ytdlp(`ytsearch10:${query}`, {
+      dumpSingleJson: true,
+      flatPlaylist: false
+    });
+
+    const videos = result.entries.map(video => ({
+      id: video.id,
+      title: video.title,
+      url: video.url || `https://www.youtube.com/watch?v=${video.id}`,
+      thumbnail: video.thumbnail,
+    }));
+
+    res.json(videos);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+// Download endpoint
+app.get('/api/download', async (req, res) => {
+  const id = req.query.id;
+  const format = req.query.format || 'mp3';
+  if (!id) return res.status(400).send('Missing video ID');
+
+  const url = `https://www.youtube.com/watch?v=${id}`;
+  const fileName = `Toofan_${id}.${format}`;
+  res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+  try {
+    const process = ytdlp.exec(url, {
+      format: format === 'mp3' ? 'bestaudio' : 'bestvideo+bestaudio',
+      output: '-',
+      audioFormat: 'mp3',
+      audioQuality: 0,
+      quiet: true
+    });
+
+    process.stdout.pipe(res);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Download error');
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
