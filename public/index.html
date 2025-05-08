@@ -6,7 +6,7 @@
   <title>TOOFAN Music & Video</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #0f0f1a;
       color: white;
       margin: 0;
@@ -33,6 +33,7 @@
     #search-bar {
       display: flex;
       justify-content: center;
+      align-items: center;
       margin: 10px 20px;
       position: sticky;
       top: 75px;
@@ -43,18 +44,21 @@
 
     #search-bar input {
       width: 60%;
-      padding: 10px;
+      padding: 15px 20px;
       font-size: 16px;
-      border-radius: 10px;
+      border-radius: 30px;
       border: none;
+      background: #1f1f2f;
+      color: white;
+      outline: none;
     }
 
     #search-bar button {
-      padding: 10px 20px;
+      padding: 12px 20px;
       margin-left: 10px;
       background: cyan;
       border: none;
-      border-radius: 10px;
+      border-radius: 30px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -64,18 +68,19 @@
       background: red;
       color: white;
       font-weight: bold;
-      padding: 10px 15px;
+      padding: 12px 16px;
       border: none;
-      border-radius: 10px;
+      border-radius: 30px;
       cursor: pointer;
     }
 
     #player {
       position: sticky;
-      top: 130px;
+      top: 140px;
       z-index: 998;
       background: #0f0f1a;
       padding: 10px 0;
+      text-align: center;
     }
 
     #results {
@@ -116,7 +121,10 @@
     iframe {
       display: block;
       margin: 0 auto;
-      max-width: 100%;
+      width: 90%;
+      max-width: 480px;
+      height: 270px;
+      border-radius: 10px;
     }
 
     #progressContainer {
@@ -165,6 +173,15 @@
     .suggestion:hover {
       background: #3a3a5f;
     }
+
+    footer {
+      background: #1a1a2f;
+      color: cyan;
+      text-align: center;
+      padding: 20px;
+      margin-top: 30px;
+      border-top: 2px solid cyan;
+    }
   </style>
 </head>
 <body>
@@ -188,6 +205,10 @@
   <div id="player"></div>
   <div id="results"></div>
 
+  <footer>
+    &copy; 2025 TOOFAN.com - Your Source for Music & Video Downloads
+  </footer>
+
   <script>
     const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
     const searchInput = document.getElementById("search");
@@ -195,8 +216,6 @@
     const playerDiv = document.getElementById("player");
     const loadingSpinner = document.getElementById("loader");
     const suggestionsDiv = document.getElementById("suggestions");
-
-    let autocompleteData = [];
 
     async function fetchAutocomplete(query) {
       try {
@@ -214,8 +233,10 @@
         suggestionsDiv.innerHTML = "";
         return;
       }
-      autocompleteData = await fetchAutocomplete(query);
-      suggestionsDiv.innerHTML = autocompleteData.map(item => `<div class="suggestion" onclick="selectSuggestion('${item.replace(/'/g, "\\'")}' )">${item}</div>`).join('');
+      const autocompleteData = await fetchAutocomplete(query);
+      suggestionsDiv.innerHTML = autocompleteData.map(item => `
+        <div class="suggestion" onclick="selectSuggestion('${item.replace(/'/g, "\\'")}')">${item}</div>
+      `).join('');
     }
 
     function selectSuggestion(text) {
@@ -227,53 +248,6 @@
     function clearSearch() {
       searchInput.value = "";
       suggestionsDiv.innerHTML = "";
-    }
-
-    async function downloadFile(url, filename) {
-      const progressContainer = document.getElementById('progressContainer');
-      const progressBar = document.getElementById('progressBar');
-      progressContainer.style.display = 'block';
-      progressBar.style.width = '0%';
-      progressBar.textContent = '0%';
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        const contentLength = response.headers.get('Content-Length');
-        if (!contentLength) throw new Error('Content-Length response header unavailable');
-
-        const total = parseInt(contentLength, 10);
-        let loaded = 0;
-
-        const reader = response.body.getReader();
-        const chunks = [];
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          chunks.push(value);
-          loaded += value.length;
-          const percent = ((loaded / total) * 100).toFixed(2);
-          progressBar.style.width = percent + '%';
-          progressBar.textContent = percent + '%';
-        }
-
-        const blob = new Blob(chunks);
-        const downloadUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(downloadUrl);
-      } catch (error) {
-        alert('Download failed: ' + error.message);
-      } finally {
-        setTimeout(() => {
-          progressContainer.style.display = 'none';
-        }, 2000);
-      }
     }
 
     async function searchVideos() {
@@ -306,8 +280,8 @@
           card.innerHTML = `
             <img src="${thumb}" alt="thumbnail">
             <h4>${title}</h4>
-            <button onclick="downloadFile('/download-mp3?url=https://www.youtube.com/watch?v=${videoId}', '${title}.mp3')">Download MP3</button>
-            <button onclick="downloadFile('/download-mp4?url=https://www.youtube.com/watch?v=${videoId}', '${title}.mp4')">Download MP4</button>
+            <button onclick="window.location.href='/api/download/mp3?url=https://www.youtube.com/watch?v=${videoId}'">Download MP3</button>
+            <button onclick="window.location.href='/api/download/mp4?url=https://www.youtube.com/watch?v=${videoId}'">Download MP4</button>
             <button onclick="playVideo('${videoId}')">Play</button>
           `;
           resultsDiv.appendChild(card);
@@ -320,7 +294,7 @@
 
     function playVideo(videoId) {
       playerDiv.innerHTML = `
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
+        <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
       `;
     }
   </script>
@@ -334,6 +308,6 @@
       }, 'google_translate_element');
     }
   </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
-  </html>
+</html>
