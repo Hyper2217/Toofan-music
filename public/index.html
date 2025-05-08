@@ -2,312 +2,241 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TOOFAN Music & Video</title>
+  <title>Toofan Music Downloader</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0f0f1a;
-      color: white;
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d1117;
+      color: #f0f0f0;
     }
 
     header {
-      background: #1a1a2f;
+      background: #121212;
       padding: 20px;
       text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: cyan;
+      font-size: 2rem;
+      color: #1db954;
+      box-shadow: 0 2px 10px rgba(0, 255, 100, 0.2);
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 10;
     }
 
-    #google_translate_element {
-      margin: 10px;
-      text-align: center;
-    }
-
-    #search-bar {
+    .search-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 10px 20px;
-      position: sticky;
-      top: 75px;
-      background: #0f0f1a;
-      z-index: 999;
-      padding: 10px 0;
+      margin: 40px auto;
+      position: relative;
     }
 
-    #search-bar input {
-      width: 60%;
+    .search-box {
+      display: flex;
+      width: 80%;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-input {
+      flex: 1;
       padding: 15px 20px;
-      font-size: 16px;
-      border-radius: 30px;
+      font-size: 1.1rem;
+      border-radius: 30px 0 0 30px;
       border: none;
-      background: #1f1f2f;
-      color: white;
       outline: none;
+      box-shadow: 0 0 10px #1db95455;
+      background: #1e1e1e;
+      color: #fff;
     }
 
-    #search-bar button {
-      padding: 12px 20px;
-      margin-left: 10px;
-      background: cyan;
+    .search-btn, .clear-btn {
+      background: #1db954;
       border: none;
-      border-radius: 30px;
+      padding: 0 20px;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
+      border-radius: 0;
     }
 
-    #cancel-btn {
-      margin-left: 5px;
-      background: red;
-      color: white;
-      font-weight: bold;
-      padding: 12px 16px;
-      border: none;
-      border-radius: 30px;
+    .search-btn {
+      border-radius: 0 30px 30px 0;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 70px;
+      top: 10px;
+      background: transparent;
+      color: #ccc;
+      font-size: 24px;
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 60px;
+      width: 100%;
+      background: #1e1e1e;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px #000;
+      z-index: 2;
+    }
+
+    .suggestion {
+      padding: 10px 20px;
       cursor: pointer;
+      border-bottom: 1px solid #333;
     }
 
-    #player {
-      position: sticky;
-      top: 140px;
-      z-index: 998;
-      background: #0f0f1a;
-      padding: 10px 0;
-      text-align: center;
+    .suggestion:hover {
+      background-color: #333;
     }
 
     #results {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      gap: 1.5rem;
+      padding: 2rem;
     }
 
-    .card {
-      background: #1a1a2f;
-      margin: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      width: 250px;
+    .result {
+      background: #161b22;
+      padding: 1rem;
+      width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #1db95433;
       text-align: center;
     }
 
-    .card img {
-      max-width: 100%;
+    .result img {
+      width: 100%;
       border-radius: 10px;
     }
 
-    .card h4 {
-      font-size: 16px;
+    .result h4 {
+      margin: 0.5rem 0;
+    }
+
+    .result video {
+      width: 100%;
       margin: 10px 0;
     }
 
-    .card button {
-      margin: 5px;
-      padding: 8px 10px;
-      background: cyan;
+    .result button {
+      background: #1db954;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      padding: 10px 15px;
+      color: #000;
       font-weight: bold;
-    }
-
-    iframe {
-      display: block;
-      margin: 0 auto;
-      width: 90%;
-      max-width: 480px;
-      height: 270px;
-      border-radius: 10px;
-    }
-
-    #progressContainer {
-      width: 90%;
-      background-color: #1a1a2f;
-      border-radius: 10px;
-      margin: 20px auto;
-      padding: 10px;
-      display: none;
-    }
-
-    #progressBar {
-      width: 0%;
-      height: 20px;
-      background-color: cyan;
-      border-radius: 10px;
-      text-align: center;
-      color: black;
-      font-weight: bold;
-    }
-
-    #loader {
-      text-align: center;
-      display: none;
-      margin: 20px;
-    }
-
-    #suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 10px 0;
-      gap: 10px;
-    }
-
-    .suggestion {
-      background: #2a2a3f;
-      padding: 5px 15px;
       border-radius: 20px;
       cursor: pointer;
-      color: cyan;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    .suggestion:hover {
-      background: #3a3a5f;
+      margin: 5px;
     }
 
     footer {
-      background: #1a1a2f;
-      color: cyan;
       text-align: center;
-      padding: 20px;
-      margin-top: 30px;
-      border-top: 2px solid cyan;
+      padding: 1rem;
+      background: #121212;
+      border-top: 1px solid #1db95444;
+      margin-top: 2rem;
     }
   </style>
 </head>
 <body>
-  <header>TOOFAN Music & Video Downloader</header>
+  <header>Toofan Music Downloader</header>
 
-  <div id="google_translate_element"></div>
-
-  <div id="search-bar">
-    <input type="text" id="search" placeholder="Search for music or videos..." oninput="showSuggestions()">
-    <button onclick="searchVideos()">Search</button>
-    <button id="cancel-btn" onclick="clearSearch()">×</button>
+  <div class="search-container">
+    <div class="search-box">
+      <input type="text" id="query" class="search-input" placeholder="Search for music or videos..." autocomplete="off" />
+      <button id="searchBtn" class="search-btn">Search</button>
+      <button id="clearBtn" class="clear-btn">&times;</button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
   </div>
 
-  <div id="suggestions"></div>
-
-  <div id="progressContainer">
-    <div id="progressBar">0%</div>
-  </div>
-
-  <div id="loader">Loading...</div>
-  <div id="player"></div>
   <div id="results"></div>
 
   <footer>
-    &copy; 2025 TOOFAN.com - Your Source for Music & Video Downloads
+    &copy; 2025 Toofan.com | Stream & Download your favorite music
   </footer>
 
   <script>
-    const apiKey = "AIzaSyDZNdCryKjbaasYmIOdgCUzVYQhHojfuLU";
-    const searchInput = document.getElementById("search");
-    const resultsDiv = document.getElementById("results");
-    const playerDiv = document.getElementById("player");
-    const loadingSpinner = document.getElementById("loader");
-    const suggestionsDiv = document.getElementById("suggestions");
+    const input = document.getElementById('query');
+    const results = document.getElementById('results');
+    const suggestionsBox = document.getElementById('suggestions');
+    const searchBtn = document.getElementById('searchBtn');
+    const clearBtn = document.getElementById('clearBtn');
 
-    async function fetchAutocomplete(query) {
-      try {
-        const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        return data[1] || [];
-      } catch (e) {
-        return [];
-      }
-    }
+    let debounceTimeout;
 
-    async function showSuggestions() {
-      const query = searchInput.value.trim();
-      if (!query) {
-        suggestionsDiv.innerHTML = "";
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      clearTimeout(debounceTimeout);
+      if (!q) {
+        suggestionsBox.innerHTML = '';
         return;
       }
-      const autocompleteData = await fetchAutocomplete(query);
-      suggestionsDiv.innerHTML = autocompleteData.map(item => `
-        <div class="suggestion" onclick="selectSuggestion('${item.replace(/'/g, "\\'")}')">${item}</div>
+
+      debounceTimeout = setTimeout(async () => {
+        const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        suggestionsBox.innerHTML = data
+          .map(item => `<div class="suggestion">${item}</div>`)
+          .join('');
+      }, 300);
+    });
+
+    suggestionsBox.addEventListener('click', (e) => {
+      if (e.target.classList.contains('suggestion')) {
+        input.value = e.target.textContent;
+        suggestionsBox.innerHTML = '';
+        search(input.value);
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        suggestionsBox.innerHTML = '';
+        search(input.value.trim());
+      }
+    });
+
+    searchBtn.addEventListener('click', () => {
+      suggestionsBox.innerHTML = '';
+      search(input.value.trim());
+    });
+
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      suggestionsBox.innerHTML = '';
+      results.innerHTML = '';
+    });
+
+    async function search(query) {
+      if (!query) return;
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      results.innerHTML = data.map(video => `
+        <div class="result">
+          <img src="${video.thumbnail}" alt="${video.title}">
+          <h4>${video.title}</h4>
+          <video controls poster="${video.thumbnail}">
+            <source src="https://www.youtube.com/watch?v=${video.id}" type="video/mp4" />
+          </video>
+          <div>
+            <a href="/api/download?id=${video.id}&format=mp3">
+              <button>Download MP3</button>
+            </a>
+            <a href="/api/download?id=${video.id}&format=mp4">
+              <button>Download MP4</button>
+            </a>
+          </div>
+        </div>
       `).join('');
     }
-
-    function selectSuggestion(text) {
-      searchInput.value = text;
-      suggestionsDiv.innerHTML = "";
-      searchVideos();
-    }
-
-    function clearSearch() {
-      searchInput.value = "";
-      suggestionsDiv.innerHTML = "";
-    }
-
-    async function searchVideos() {
-      const query = searchInput.value.trim();
-      if (!query) return alert("Enter something to search.");
-
-      playerDiv.innerHTML = "";
-      resultsDiv.innerHTML = "";
-      loadingSpinner.style.display = 'block';
-      suggestionsDiv.innerHTML = "";
-
-      try {
-        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&key=${apiKey}&maxResults=40`);
-        const data = await res.json();
-        loadingSpinner.style.display = 'none';
-
-        const firstVideo = data.items[0];
-        if (firstVideo) {
-          const firstId = firstVideo.id.videoId;
-          playVideo(firstId);
-        }
-
-        data.items.forEach(item => {
-          const videoId = item.id.videoId;
-          const title = item.snippet.title;
-          const thumb = item.snippet.thumbnails.medium.url;
-
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <img src="${thumb}" alt="thumbnail">
-            <h4>${title}</h4>
-            <button onclick="window.location.href='/api/download/mp3?url=https://www.youtube.com/watch?v=${videoId}'">Download MP3</button>
-            <button onclick="window.location.href='/api/download/mp4?url=https://www.youtube.com/watch?v=${videoId}'">Download MP4</button>
-            <button onclick="playVideo('${videoId}')">Play</button>
-          `;
-          resultsDiv.appendChild(card);
-        });
-      } catch (err) {
-        loadingSpinner.style.display = 'none';
-        alert("Failed to fetch videos.");
-      }
-    }
-
-    function playVideo(videoId) {
-      playerDiv.innerHTML = `
-        <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-      `;
-    }
   </script>
-
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'en,ar,sw,fr,pt,zh-CN,ja,hi',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-      }, 'google_translate_element');
-    }
-  </script>
-  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
-</html>
+  </html>
