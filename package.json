@@ -1,19 +1,14 @@
 {
-  "name": "music-downloader",
+  "name": "toofan-music-downloader",
   "version": "1.0.0",
-  "description": "A music downloader site with YouTube search functionality",
+  "description": "MP3/MP4 music & video downloader using YouTube",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "node-fetch": "^2.6.7",
-    "cors": "^2.8.5"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "author": "",
-  "license": "ISC"
+    "yt-dlp-exec": "^1.1.3"
+  }
 }
