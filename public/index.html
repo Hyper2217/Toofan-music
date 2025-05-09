@@ -10,7 +10,7 @@
       background-color: #0d1117;
       color: #f0f0f0;
     }
-
+    
     header {
       background: #121212;
       padding: 20px;
@@ -22,11 +22,10 @@
       top: 0;
       z-index: 10;
     }
-
+    
     .search-container {
       display: flex;
       justify-content: center;
-      align-items: center;
       margin: 40px auto;
       position: relative;
     }
@@ -35,17 +34,15 @@
       display: flex;
       width: 80%;
       max-width: 600px;
-      position: relative;
     }
 
     .search-input {
       flex: 1;
-      padding: 15px 20px;
+      padding: 15px;
       font-size: 1.1rem;
       border-radius: 30px 0 0 30px;
       border: none;
       outline: none;
-      box-shadow: 0 0 10px #1db95455;
       background: #1e1e1e;
       color: #fff;
     }
@@ -53,17 +50,13 @@
     .search-btn, .clear-btn {
       background: #1db954;
       border: none;
-      padding: 0 20px;
+      padding: 10px;
       font-size: 1rem;
-      font-weight: bold;
       cursor: pointer;
-      border-radius: 0;
     }
 
-    .search-btn {
-      border-radius: 0 30px 30px 0;
-    }
-
+    .search-btn { border-radius: 0 30px 30px 0; }
+    
     .clear-btn {
       position: absolute;
       right: 70px;
@@ -71,28 +64,6 @@
       background: transparent;
       color: #ccc;
       font-size: 24px;
-    }
-
-    .suggestions {
-      position: absolute;
-      top: 60px;
-      width: 100%;
-      background: #1e1e1e;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px #000;
-      z-index: 2;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .suggestion {
-      padding: 10px 20px;
-      cursor: pointer;
-      border-bottom: 1px solid #333;
-    }
-
-    .suggestion:hover {
-      background-color: #333;
     }
 
     #results {
@@ -112,30 +83,49 @@
       text-align: center;
     }
 
-    .result img {
-      width: 100%;
-      border-radius: 10px;
-    }
-
-    .result h4 {
-      margin: 0.5rem 0;
-    }
-
-    .result video {
-      width: 100%;
-      margin: 10px 0;
-      border-radius: 10px;
-    }
-
+    .result img { width: 100%; border-radius: 10px; }
+    
     .result button {
       background: #1db954;
       border: none;
-      padding: 10px 15px;
+      padding: 10px;
       color: #000;
       font-weight: bold;
       border-radius: 20px;
       cursor: pointer;
       margin: 5px;
+    }
+
+    /* Player Modal */
+    #playerModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #playerContainer {
+      background: #222;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 90%;
+      width: 600px;
+      text-align: center;
+    }
+
+    #closePlayer {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
     }
 
     footer {
@@ -144,23 +134,6 @@
       background: #121212;
       border-top: 1px solid #1db95444;
       margin-top: 2rem;
-      box-shadow: 0 -2px 15px #1db95433;
-    }
-
-    footer a {
-      color: #1db954;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-
-    footer a img {
-      vertical-align: middle;
-      filter: drop-shadow(0 0 2px #1db954);
-      transition: transform 0.2s;
-    }
-
-    footer a img:hover {
-      transform: scale(1.1);
     }
   </style>
 </head>
@@ -169,81 +142,44 @@
 
   <div class="search-container">
     <div class="search-box">
-      <input type="text" id="query" class="search-input" placeholder="Search for music or videos..." autocomplete="on" />
+      <input type="text" id="query" class="search-input" placeholder="Search music or videos..." autocomplete="on" />
       <button id="searchBtn" class="search-btn">Search</button>
       <button id="clearBtn" class="clear-btn">&times;</button>
-      <div class="suggestions" id="suggestions"></div>
     </div>
   </div>
 
   <div id="results"></div>
 
-  <footer>
-    <div style="padding: 1rem; color: #ccc;">
-      <p>&copy; 2025 <span style="color:#1db954;">Toofan.com</span> | Stream & Download your favorite music</p>
-      <div style="margin-top: 0.5rem;">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-      </div>
-      <div style="margin-top: 0.5rem;">
-        <a href="#"><img src="https://img.icons8.com/fluency/24/facebook-new.png"/></a>
-        <a href="#"><img src="https://img.icons8.com/fluency/24/instagram-new.png"/></a>
-        <a href="#"><img src="https://img.icons8.com/fluency/24/twitter-squared.png"/></a>
-      </div>
+  <!-- Video Player Modal -->
+  <div id="playerModal">
+    <div id="playerContainer">
+      <span id="closePlayer">&times;</span>
+      <video id="playerVideo" controls style="width:100%; border-radius:10px;"></video>
     </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Toofan.com | Stream & Download your favorite music
   </footer>
 
   <script>
     const input = document.getElementById('query');
     const results = document.getElementById('results');
-    const suggestionsBox = document.getElementById('suggestions');
     const searchBtn = document.getElementById('searchBtn');
     const clearBtn = document.getElementById('clearBtn');
+    const playerModal = document.getElementById('playerModal');
+    const playerVideo = document.getElementById('playerVideo');
+    const closePlayer = document.getElementById('closePlayer');
 
-    let debounceTimeout;
-
-    input.addEventListener('input', () => {
-      const q = input.value.trim();
-      clearTimeout(debounceTimeout);
-      if (!q) {
-        suggestionsBox.innerHTML = '';
-        return;
-      }
-
-      debounceTimeout = setTimeout(async () => {
-        const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-        suggestionsBox.innerHTML = data
-          .map(item => `<div class="suggestion">${item}</div>`)
-          .join('');
-      }, 300);
-    });
-
-    suggestionsBox.addEventListener('click', (e) => {
-      if (e.target.classList.contains('suggestion')) {
-        input.value = e.target.textContent;
-        suggestionsBox.innerHTML = '';
-        search(input.value);
-      }
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        suggestionsBox.innerHTML = '';
-        search(input.value.trim());
-      }
-    });
-
-    searchBtn.addEventListener('click', () => {
-      suggestionsBox.innerHTML = '';
-      search(input.value.trim());
-    });
-
+    searchBtn.addEventListener('click', () => search(input.value.trim()));
     clearBtn.addEventListener('click', () => {
       input.value = '';
-      suggestionsBox.innerHTML = '';
       results.innerHTML = '';
+    });
+
+    closePlayer.addEventListener('click', () => {
+      playerVideo.pause();
+      playerModal.style.display = 'none';
     });
 
     async function search(query) {
@@ -255,20 +191,24 @@
         <div class="result">
           <img src="${video.thumbnail}" alt="${video.title}">
           <h4>${video.title}</h4>
-          <video controls poster="${video.thumbnail}">
-            <source src="${video.url}" type="video/mp4" />
-          </video>
+          <button onclick="playVideo('${video.url}')">▶ Play</button>
           <div>
-            <a href="/api/download?id=${video.id}&format=mp3" download>
+            <a href="/api/download?id=${video.id}&format=mp3">
               <button>Download MP3</button>
             </a>
-            <a href="/api/download?id=${video.id}&format=mp4" download>
+            <a href="/api/download?id=${video.id}&format=mp4">
               <button>Download MP4</button>
             </a>
           </div>
         </div>
       `).join('');
     }
+
+    function playVideo(videoUrl) {
+      playerVideo.src = videoUrl;
+      playerModal.style.display = 'flex';
+      playerVideo.play();
+    }
   </script>
 </body>
-  </html>
+</html>
