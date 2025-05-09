@@ -1,81 +1,56 @@
 const express = require('express');
 const cors = require('cors');
-const ytdlp = require('yt-dlp-exec');
+const yts = require('yt-search');
+const { spawn } = require('child_process');
+const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.static('public'));
 
-// Suggest endpoint using ytsearch (autocomplete simulation)
 app.get('/api/suggest', async (req, res) => {
-  const query = req.query.q;
-  if (!query) return res.json([]);
-
-  try {
-    const result = await ytdlp(`ytsearch10:${query}`, {
-      dumpSingleJson: true,
-      flatPlaylist: true
-    });
-
-    const suggestions = result.entries.map(item => item.title);
-    res.json(suggestions);
-  } catch (err) {
-    res.status(500).json({ error: 'Suggestion error' });
-  }
+  const q = req.query.q || '';
+  const r = await yts(q);
+  const suggestions = r.videos.slice(0, 5).map(v => v.title);
+  res.json(suggestions);
 });
 
-// Search endpoint
 app.get('/api/search', async (req, res) => {
-  const query = req.query.q;
-  if (!query) return res.status(400).json({ error: 'Missing query' });
-
-  try {
-    const result = await ytdlp(`ytsearch10:${query}`, {
-      dumpSingleJson: true,
-      flatPlaylist: false
-    });
-
-    const videos = result.entries.map(video => ({
-      id: video.id,
-      title: video.title,
-      url: video.url || `https://www.youtube.com/watch?v=${video.id}`,
-      thumbnail: video.thumbnail,
-    }));
-
-    res.json(videos);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Search failed' });
-  }
+  const q = req.query.q || '';
+  const r = await yts(q);
+  const videos = r.videos.slice(0, 8).map(v => ({
+    id: v.videoId,
+    title: v.title,
+    thumbnail: v.thumbnail,
+    url: `https://www.youtube.com/watch?v=${v.videoId}`
+  }));
+  res.json(videos);
 });
 
-// Download endpoint
-app.get('/api/download', async (req, res) => {
-  const id = req.query.id;
-  const format = req.query.format || 'mp3';
-  if (!id) return res.status(400).send('Missing video ID');
+app.get('/api/download', (req, res) => {
+  const { id, format } = req.query;
+  if (!id || !['mp3', 'mp4'].includes(format)) {
+    return res.status(400).send('Invalid request');
+  }
 
   const url = `https://www.youtube.com/watch?v=${id}`;
-  const fileName = `Toofan_${id}.${format}`;
+  const fileName = `toofan_download.${format}`;
+  const yt = spawn('yt-dlp', [
+    url,
+    '-o', '-',
+    ...(format === 'mp3'
+      ? ['-f', 'bestaudio', '--extract-audio', '--audio-format', 'mp3']
+      : ['-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4']),
+  ]);
+
   res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+  res.setHeader('Content-Type', format === 'mp3' ? 'audio/mpeg' : 'video/mp4');
+  yt.stdout.pipe(res);
 
-  try {
-    const process = ytdlp.exec(url, {
-      format: format === 'mp3' ? 'bestaudio' : 'bestvideo+bestaudio',
-      output: '-',
-      audioFormat: 'mp3',
-      audioQuality: 0,
-      quiet: true
-    });
-
-    process.stdout.pipe(res);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Download error');
-  }
+  yt.stderr.on('data', (data) => console.error(`yt-dlp error: ${data}`));
+  yt.on('close', code => console.log(`yt-dlp exited with code ${code}`));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
