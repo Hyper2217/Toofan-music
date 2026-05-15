@@ -2,13 +2,10 @@ FROM node:18-bullseye
 
 WORKDIR /app
 
-# Install ffmpeg + python + yt-dlp
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip ffmpeg && \
-    pip3 install yt-dlp && \
-    apt-get clean
+    apt-get install -y ffmpeg python3 yt-dlp
 
-COPY package*.json ./
+COPY package.json ./
 
 RUN npm install
 
