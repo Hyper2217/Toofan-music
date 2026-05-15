@@ -191,23 +191,22 @@
         <div class="result">
           <img src="${video.thumbnail}" alt="${video.title}">
           <h4>${video.title}</h4>
-          <button onclick="playVideo('${video.url}')">▶ Play</button>
+          <button onclick="playVideo('${video.id}')">▶ Play</button>
           <div>
-            <a href="/api/download?id=${video.id}&format=mp3">
-              <button>Download MP3</button>
-            </a>
-            <a href="/api/download?id=${video.id}&format=mp4">
-              <button>Download MP4</button>
-            </a>
+            <button onclick="download('${video.id}', 'mp3')">Download MP3</button>
+            <button onclick="download('${video.id}', 'mp4')">Download MP4</button>
           </div>
         </div>
       `).join('');
     }
 
-    function playVideo(videoUrl) {
-      playerVideo.src = videoUrl;
-      playerModal.style.display = 'flex';
-      playerVideo.play();
+    function playVideo(id) {
+  playerVideo.src = `/api/download?id=${id}&format=mp4`;
+  playerModal.style.display = 'flex';
+  playerVideo.play();
+    }
+    function download(id, format) {
+  window.open(`/api/download?id=${id}&format=${format}`, '_blank');
     }
   </script>
 </body>
