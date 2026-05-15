@@ -43,6 +43,9 @@ app.get('/api/search', async (req, res) => {
 // =========================
 // ⬇️ DOWNLOAD API (FIXED)
 // =========================
+const fs = require('fs');
+const path = require('path');
+
 app.get('/api/download', (req, res) => {
   const { id, format } = req.query;
 
@@ -51,46 +54,36 @@ app.get('/api/download', (req, res) => {
   }
 
   const url = `https://www.youtube.com/watch?v=${id}`;
+  const filePath = path.join(__dirname, `${id}.${format}`);
 
   const args = format === 'mp3'
     ? [
+        url,
         '-f', 'bestaudio',
-        '--no-playlist',
-        '--extractaudio',
+        '--extract-audio',
         '--audio-format', 'mp3',
-        '-o', '-',
-        url
+        '--audio-quality', '0',
+        '-o', filePath
       ]
     : [
+        url,
         '-f', 'best[ext=mp4]',
-        '--no-playlist',
-        '-o', '-',
-        url
+        '-o', filePath
       ];
 
   const yt = spawn('yt-dlp', args);
 
-  res.setHeader(
-    'Content-Type',
-    format === 'mp3' ? 'audio/mpeg' : 'video/mp4'
-  );
-
-  yt.stdout.pipe(res);
-
-  yt.stderr.on('data', data => {
-    console.log('yt-dlp:', data.toString());
+  yt.on('close', () => {
+    res.download(filePath, () => {
+      fs.unlinkSync(filePath); // cleanup
+    });
   });
 
   yt.on('error', (err) => {
-    console.error('Spawn error:', err);
-    res.status(500).end('Download failed');
-  });
-
-  yt.on('close', code => {
-    console.log(`yt-dlp exited with code ${code}`);
+    console.error(err);
+    res.status(500).send('Download failed');
   });
 });
-
 
 // =========================
 // START SERVER
