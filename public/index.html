@@ -135,17 +135,44 @@
       border-top: 1px solid #1db95444;
       margin-top: 2rem;
     }
+    .spotify-search {
+  width: 80%;
+  max-width: 600px;
+  margin: 40px auto;
+  position: relative;
+}
+
+.spotify-search input {
+  width: 100%;
+  padding: 18px 20px;
+  border-radius: 50px;
+  border: none;
+  outline: none;
+  background: #1e1e1e;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: 0 0 20px rgba(29,185,84,0.3);
+}
+
+#suggestions {
+  position: absolute;
+  width: 100%;
+  background: #121212;
+  border-radius: 15px;
+  margin-top: 10px;
+  overflow: hidden;
+  display: none;
+}
   </style>
 </head>
 <body>
   <header>Toofan Music Downloader</header>
 
   <div class="search-container">
-    <div class="search-box">
-      <input type="text" id="query" class="search-input" placeholder="Search music or videos..." autocomplete="on" />
-      <button id="searchBtn" class="search-btn">Search</button>
-      <button id="clearBtn" class="clear-btn">&times;</button>
-    </div>
+<div class="spotify-search">
+  <input id="query" placeholder="Search for songs, artists..." />
+  <div id="suggestions"></div>
+  
   </div>
 
   <div id="results"></div>
