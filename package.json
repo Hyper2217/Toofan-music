@@ -4,7 +4,8 @@
   "description": "A music/video downloader using yt-dlp and yt-search",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "author": "Toofan.com",
   "license": "MIT",
