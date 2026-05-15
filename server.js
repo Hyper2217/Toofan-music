@@ -10,33 +10,53 @@ app.use(cors());
 app.use(express.static('public'));
 
 // Search API
-app.get('/api/search', async (req, res) => {
-  const q = req.query.q || '';
-  const r = await yts(q);
-  const videos = r.videos.slice(0, 8).map(v => ({
-    id: v.videoId,
-    title: v.title,
-    thumbnail: v.thumbnail,
-    url: `https://www.youtube.com/watch?v=${v.videoId}`
-  }));
-  res.json(videos);
-});
-
-// Download API
 app.get('/api/download', (req, res) => {
+
   const { id, format } = req.query;
-  if (!id || !['mp3', 'mp4'].includes(format)) return res.status(400).send('Invalid request');
 
-  const yt = spawn('yt-dlp', [
-    `https://www.youtube.com/watch?v=${id}`,
-    '-o', '-',
-    ...(format === 'mp3' ? ['-f', 'bestaudio', '--extract-audio', '--audio-format', 'mp3']
-                          : ['-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'])
-  ]);
+  if (!id || !['mp3', 'mp4'].includes(format)) {
+    return res.status(400).send('Invalid request');
+  }
 
-  res.setHeader('Content-Disposition', `attachment; filename="Toofan_${id}.${format}"`);
-  res.setHeader('Content-Type', format === 'mp3' ? 'audio/mpeg' : 'video/mp4');
+  const url = `https://www.youtube.com/watch?v=${id}`;
+
+  const args =
+    format === 'mp3'
+      ? [
+          '-f',
+          'bestaudio',
+          '--no-playlist',
+          '-o',
+          '-',
+          url
+        ]
+      : [
+          '-f',
+          'best[ext=mp4]',
+          '--no-playlist',
+          '-o',
+          '-',
+          url
+        ];
+
+  const yt = spawn('yt-dlp', args);
+
+  res.setHeader(
+    'Content-Type',
+    format === 'mp3'
+      ? 'audio/mpeg'
+      : 'video/mp4'
+  );
+
   yt.stdout.pipe(res);
+
+  yt.stderr.on('data', data => {
+    console.log(data.toString());
+  });
+
+  yt.on('close', code => {
+    console.log(`yt-dlp exited with code ${code}`);
+  });
 });
 
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
