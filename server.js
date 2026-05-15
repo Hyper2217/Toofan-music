@@ -91,3 +91,20 @@ app.get('/api/download', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+app.get('/api/preview', async (req, res) => {
+  const { q } = req.query;
+
+  if (!q) return res.status(400).json({ error: 'Missing query' });
+
+  const result = await yts(q);
+
+  const top = result.videos[0];
+
+  if (!top) return res.status(404).json({ error: 'No song found' });
+
+  res.json({
+    title: top.title,
+    id: top.videoId,
+    previewUrl: `/api/download?id=${top.videoId}&format=mp3`
+  });
+});
